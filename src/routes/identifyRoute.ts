@@ -1,7 +1,7 @@
 import { Request, Response } from "express"
 import { handleIdentity } from "../services/contactService"
 
-export const identify = async (req: Request, res: Response) => {
+const identify = async (req: Request, res: Response) => {
 
  const { email, phoneNumber } = req.body
 
@@ -10,3 +10,4 @@ export const identify = async (req: Request, res: Response) => {
  res.json({ contact: result })
 
 }
+export default identify
