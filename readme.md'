@@ -1,0 +1,200 @@
+
+
+```markdown
+# 🔗 BiteSpeed Backend Task: Identity Reconciliation
+
+> An **Identity Reconciliation API** that consolidates customer contact information across multiple purchases, ensuring a single unified identity for every user.
+
+---
+
+## 📖 Overview
+
+Customers often use different **emails or phone numbers** when placing orders. This system intelligently identifies and links these fragmented records. When new contact information comes in, the API evaluates the data to:
+* **Create** a new identity.
+* **Link** the information to an existing identity.
+* **Merge** identities when overlapping contact information connects two previously separate records.
+
+---
+
+## 🎯 Problem Statement
+
+In an e-commerce platform, a single customer might place orders using various combinations of contact details.
+
+**Example Scenario:**
+| Order | Email | Phone |
+| :--- | :--- | :--- |
+| 1 | `a@test.com` | `111` |
+| 2 | `b@test.com` | `111` |
+| 3 | `a@test.com` | `222` |
+
+Although the data varies, all these records belong to **one customer**. The system must identify these relationships, link them, and maintain a **primary contact** with associated **secondary contacts**.
+
+---
+
+## ⚙️ Architecture & Tech Stack
+
+**Flow:** `Client` ➔ `Express API` ➔ `Service Layer (Identity Logic)` ➔ `Prisma ORM` ➔ `PostgreSQL DB`
+
+**Technologies Used:**
+* 🟢 **Node.js** & **Express.js** (Backend Framework)
+* 📘 **TypeScript** (Static Typing)
+* ⬛ **Prisma** (ORM)
+* 🐘 **PostgreSQL** (Relational Database)
+* ☁️ **Neon DB** (Hosted Serverless Postgres)
+
+---
+
+## 🗄️ Database Schema
+
+**Table:** `Contact`
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `id` | Int | Unique contact ID |
+| `email` | String? | Email address |
+| `phoneNumber` | String? | Phone number |
+| `linkedId` | Int? | ID of the primary contact (if secondary) |
+| `linkPrecedence` | Enum | `primary` or `secondary` |
+| `createdAt` | DateTime | Timestamp of creation |
+| `updatedAt` | DateTime | Timestamp of last update |
+| `deletedAt` | DateTime?| Soft delete timestamp |
+
+---
+
+## 🧠 Identity Logic
+
+The reconciliation engine follows four core rules:
+
+1.  **New Contact:** If no matching email or phone number exists ➔ *Create a new primary contact.*
+2.  **Existing Identity:** If the email or phone already exists ➔ *Link the new record as a secondary contact to the existing primary.*
+3.  **Identity Expansion:** If the request introduces a new piece of contact info to an existing profile ➔ *Create a secondary contact and link it to the primary.*
+4.  **Identity Merge:** If a request bridges two separate primary contacts ➔ *The oldest contact remains primary, and the newer one becomes secondary.*
+
+---
+
+## 🚀 API Reference
+
+### **Identify Contact**
+`POST /identify`
+
+**Request Body:**
+```json
+{
+  "email": "a@test.com",
+  "phoneNumber": "111"
+}
+
+```
+
+**Response:**
+
+```json
+{
+  "contact": {
+    "primaryContactId": 1,
+    "emails": ["a@test.com", "b@test.com"],
+    "phoneNumbers": ["111", "222"],
+    "secondaryContactIds": [2, 3]
+  }
+}
+
+```
+
+### 🔄 Example Execution Flow
+
+1. **Request 1 (`a@test.com`, `111`):** Creates a **primary contact**.
+2. **Request 2 (`b@test.com`, `111`):** Matches phone `111`. Creates a **secondary contact** linked to the primary.
+3. **Request 3 (`a@test.com`, `222`):** Matches email `a@test.com`. Adds another **secondary contact**.
+
+---
+
+## 📁 Project Structure
+
+```text
+src/
+ ├── controllers/
+ │    └── identifyController.ts
+ ├── routes/
+ │    └── identifyRoute.ts
+ ├── services/
+ │    └── contactService.ts
+ ├── utils/
+ │    └── prisma.ts
+ └── index.ts
+
+prisma/
+ └── schema.prisma
+
+```
+
+---
+
+## 💻 Getting Started
+
+Follow these steps to run the project locally:
+
+1. **Install dependencies:**
+```bash
+npm install
+
+```
+
+
+2. **Configure environment variables:** Create a `.env` file in the root directory:
+```env
+DATABASE_URL="your_neon_database_connection_string"
+
+```
+
+
+3. **Generate Prisma client:**
+```bash
+npx prisma generate
+
+```
+
+
+4. **Sync database schema:**
+```bash
+npx prisma db push
+
+```
+
+
+5. **Start the development server:**
+```bash
+npm run dev
+
+```
+
+
+*The server will be running at `http://localhost:3000*`
+
+---
+
+## ☁️ Deployment
+
+This backend is designed to be easily deployed on platforms like:
+
+* **Render**, **Railway**, or **Vercel** (Hosting)
+* **Neon PostgreSQL** (Database)
+
+---
+
+## ✨ Key Features
+
+* ✅ Robust identity reconciliation logic
+* ✅ Primary–secondary contact linking
+* ✅ Duplicate identity merging
+* ✅ Clean and predictable API response format
+* ✅ Scalable service-layer architecture
+
+---
+
+**Author:** [Omkar Goje](https://github.com/) | Backend Developer & AI/ML Enthusiast
+
+```
+
+Would you like me to help draft a section on how to write tests for this Prisma/Express setup to add to the documentation?
+
+```
