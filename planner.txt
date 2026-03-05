@@ -1,0 +1,6 @@
+1 find contacts by email OR phone
+2 if none → create primary
+3 if exist → find primary contact
+4 add secondary if new info
+5 merge primaries if needed
+6 return identity response
