@@ -20,6 +20,24 @@ export const handleIdentity = async (
   })
 
   // 2️⃣ If no contact exists → create primary
+  const primaryContacts = contacts.filter(c => c.linkPrecedence === "primary")
+
+if (primaryContacts.length > 1) {
+
+  const oldest = primaryContacts[0]
+
+  for (const contact of primaryContacts.slice(1)) {
+    await prisma.contact.update({
+      where: { id: contact.id },
+      data: {
+        linkPrecedence: "secondary",
+        linkedId: oldest.id
+      }
+    })
+  }
+
+  primary = oldest
+}
   if (contacts.length === 0) {
 
     const newContact = await prisma.contact.create({
