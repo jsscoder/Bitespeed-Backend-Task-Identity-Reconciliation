@@ -1,6 +1,5 @@
 import { prisma } from "../utils/prisma"
 
-
 export const handleIdentity = async (
   email?: string,
   phoneNumber?: string
@@ -20,24 +19,6 @@ export const handleIdentity = async (
   })
 
   // 2️⃣ If no contact exists → create primary
-  const primaryContacts = contacts.filter(c => c.linkPrecedence === "primary")
-
-if (primaryContacts.length > 1) {
-
-  const oldest = primaryContacts[0]
-
-  for (const contact of primaryContacts.slice(1)) {
-    await prisma.contact.update({
-      where: { id: contact.id },
-      data: {
-        linkPrecedence: "secondary",
-        linkedId: oldest.id
-      }
-    })
-  }
-
-  primary = oldest
-}
   if (contacts.length === 0) {
 
     const newContact = await prisma.contact.create({
@@ -56,10 +37,30 @@ if (primaryContacts.length > 1) {
     }
   }
 
-  // 3️⃣ Determine primary contact
+  // 3️⃣ Determine primary contact FIRST
   let primary = contacts.find(c => c.linkPrecedence === "primary") || contacts[0]
 
-  // 4️⃣ Check if new info exists
+  // 4️⃣ Merge multiple primaries if they exist
+  const primaryContacts = contacts.filter(c => c.linkPrecedence === "primary")
+
+  if (primaryContacts.length > 1) {
+
+    const oldest = primaryContacts[0]
+
+    for (const contact of primaryContacts.slice(1)) {
+      await prisma.contact.update({
+        where: { id: contact.id },
+        data: {
+          linkPrecedence: "secondary",
+          linkedId: oldest.id
+        }
+      })
+    }
+
+    primary = oldest
+  }
+
+  // 5️⃣ Check if new info exists
   const emailExists = contacts.some(c => c.email === email)
   const phoneExists = contacts.some(c => c.phoneNumber === phoneNumber)
 
@@ -76,7 +77,7 @@ if (primaryContacts.length > 1) {
 
   }
 
-  // 5️⃣ Fetch all linked contacts
+  // 6️⃣ Fetch all linked contacts
   const linkedContacts = await prisma.contact.findMany({
     where: {
       OR: [
@@ -86,7 +87,7 @@ if (primaryContacts.length > 1) {
     }
   })
 
-  // 6️⃣ Prepare response
+  // 7️⃣ Prepare response
   const emails = [...new Set(linkedContacts.map(c => c.email).filter(Boolean))]
   const phones = [...new Set(linkedContacts.map(c => c.phoneNumber).filter(Boolean))]
 
