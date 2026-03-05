@@ -1,6 +1,9 @@
+
+
+```markdown
 # 🔗 BiteSpeed Backend Task — Identity Reconciliation
 
-An **Identity Reconciliation API** built with **Node.js, Express, TypeScript, Prisma, and PostgreSQL** that consolidates fragmented customer contact information into a **single unified identity**.
+An **Identity Reconciliation API** built using **Node.js, Express, TypeScript, Prisma, and PostgreSQL** that consolidates fragmented customer contact information into a **single unified identity**.
 
 This service ensures that customers using different **emails or phone numbers across purchases** are correctly identified as the same person.
 
@@ -12,20 +15,20 @@ In real-world e-commerce systems, customers often place orders with different co
 
 Example:
 
-| Order | Email                           | Phone |
-| ----- | ------------------------------- | ----- |
-| 1     | [a@test.com](mailto:a@test.com) | 111   |
-| 2     | [b@test.com](mailto:b@test.com) | 111   |
-| 3     | [a@test.com](mailto:a@test.com) | 222   |
+| Order | Email | Phone |
+|------|------|------|
+| 1 | a@test.com | 111 |
+| 2 | b@test.com | 111 |
+| 3 | a@test.com | 222 |
 
-Even though the email/phone combinations differ, **all these records belong to the same user**.
+Although the email/phone combinations differ, **all these records belong to the same user**.
 
 The backend must:
 
-* Detect overlapping identities
-* Link related contacts
-* Maintain one **primary identity**
-* Track **secondary identities**
+- Detect overlapping identities
+- Link related contacts
+- Maintain one **primary identity**
+- Track **secondary identities**
 
 ---
 
@@ -33,62 +36,60 @@ The backend must:
 
 Each contact record can be either:
 
-* **Primary** → main identity
-* **Secondary** → linked to a primary identity
+- **Primary** → main identity
+- **Secondary** → linked to a primary identity
 
 When new contact information arrives, the system determines whether to:
 
 1. Create a **new primary contact**
 2. Link to an **existing primary contact**
 3. Create a **secondary contact**
-4. **Merge two identities** if overlap is detected
+4. **Merge identities** if overlap is detected
 
 ---
 
 # ⚙️ Tech Stack
 
-Backend:
+### Backend
+- Node.js
+- Express.js
+- TypeScript
 
-* **Node.js**
-* **Express.js**
-* **TypeScript**
+### Database
+- PostgreSQL
+- Neon Serverless Postgres
 
-Database:
+### ORM
+- Prisma
 
-* **PostgreSQL**
-* **Neon Serverless Postgres**
-
-ORM:
-
-* **Prisma**
-
-Deployment Ready For:
-
-* Render
-* Railway
-* Vercel
+### Deployment Ready For
+- Render
+- Railway
+- Vercel
 
 ---
 
 # 🏗️ Architecture
 
 ```
-Client
-   │
-   ▼
-Express API
-   │
-   ▼
-Service Layer (Identity Logic)
-   │
-   ▼
-Prisma ORM
-   │
-   ▼
-PostgreSQL (Neon DB)
-```
 
-The **service layer handles all reconciliation logic**, keeping the controller clean and scalable.
+Client
+│
+▼
+Express API
+│
+▼
+Service Layer (Identity Logic)
+│
+▼
+Prisma ORM
+│
+▼
+PostgreSQL (Neon DB)
+
+````
+
+The **service layer contains the reconciliation logic**, keeping controllers simple and maintainable.
 
 ---
 
@@ -96,16 +97,16 @@ The **service layer handles all reconciliation logic**, keeping the controller c
 
 Table: **Contact**
 
-| Field          | Type      | Description               |
-| -------------- | --------- | ------------------------- |
-| id             | Int       | Unique contact ID         |
-| email          | String?   | Customer email            |
-| phoneNumber    | String?   | Customer phone            |
-| linkedId       | Int?      | Points to primary contact |
-| linkPrecedence | Enum      | `primary` or `secondary`  |
-| createdAt      | DateTime  | Record creation           |
-| updatedAt      | DateTime  | Last update               |
-| deletedAt      | DateTime? | Soft delete               |
+| Field | Type | Description |
+|------|------|-------------|
+| id | Int | Unique contact ID |
+| email | String? | Customer email |
+| phoneNumber | String? | Customer phone number |
+| linkedId | Int? | ID of primary contact |
+| linkPrecedence | Enum | `primary` or `secondary` |
+| createdAt | DateTime | Record creation timestamp |
+| updatedAt | DateTime | Last updated timestamp |
+| deletedAt | DateTime? | Soft delete timestamp |
 
 ---
 
@@ -139,7 +140,7 @@ If request introduces **new contact info to existing identity**
 
 If request connects **two primary identities**
 
-→ **Oldest contact remains primary**
+→ **Oldest contact remains primary**  
 → **Newer primary becomes secondary**
 
 ---
@@ -150,16 +151,16 @@ If request connects **two primary identities**
 
 ### Request
 
-```
+```json
 {
   "email": "a@test.com",
   "phoneNumber": "111"
 }
-```
+````
 
 ### Response
 
-```
+```json
 {
   "contact": {
     "primaryContactId": 1,
@@ -214,39 +215,31 @@ prisma
 npm install
 ```
 
----
-
 ### 2 Create `.env`
 
 ```
 DATABASE_URL="your_neon_database_url"
 ```
 
----
-
-### 3 Generate Prisma client
+### 3 Generate Prisma Client
 
 ```
 npx prisma generate
 ```
 
----
-
-### 4 Push schema
+### 4 Push schema to database
 
 ```
 npx prisma db push
 ```
 
----
-
-### 5 Run server
+### 5 Start development server
 
 ```
 npm run dev
 ```
 
-Server will start at
+Server will run at:
 
 ```
 http://localhost:3000
@@ -258,34 +251,33 @@ http://localhost:3000
 
 Recommended stack:
 
-Backend Hosting
+### Backend Hosting
 
 * Render
 * Railway
 
-Database
+### Database
 
 * Neon PostgreSQL
 
 Deployment steps:
 
-1. Push code to GitHub
-2. Connect repo to hosting provider
+1. Push project to GitHub
+2. Connect repository to hosting provider
 3. Add environment variables
-4. Deploy service
+4. Deploy backend service
 
 ---
 
 # ✨ Key Features
 
 * Identity reconciliation algorithm
-* Automatic duplicate detection
 * Primary–secondary contact linking
+* Automatic duplicate detection
 * Deterministic merge logic
 * Clean API response structure
-* Scalable service layer architecture
-* PostgreSQL persistence
-* Prisma ORM integration
+* Scalable service-layer architecture
+* PostgreSQL persistence with Prisma ORM
 
 ---
 
@@ -295,5 +287,9 @@ Deployment steps:
 
 Backend Developer | AI/ML Enthusiast
 
-GitHub
-https://github.com/jsscoder
+GitHub:
+[https://github.com/jsscoder](https://github.com/jsscoder)
+
+````
+
+
