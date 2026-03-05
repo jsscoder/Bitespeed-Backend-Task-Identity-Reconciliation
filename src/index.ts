@@ -1,5 +1,6 @@
 import express from "express"
 import identifyRoute from "./routes/identifyRoute"
+const PORT = process.env.PORT || 3000
 
 const app = express()
 
@@ -11,6 +12,7 @@ app.get("/", (req, res) => {
     msg: "BiteSpeed Identity Reconciliation API running"
   }).status(200)
 })
-app.listen(3000, () => {
-  console.log("Server running on port 3000")
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
 })
